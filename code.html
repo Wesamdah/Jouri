@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>L’Éternel Jardin - Dedicated to Sedra Nammora</title>
+<!-- Fonts: EB Garamond & Playfair Display -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "outline-variant": "#584142",
+            "on-background": "#d1e8dc",
+            "surface-dim": "#041710",
+            "on-tertiary-container": "#d7a8a8",
+            "on-secondary-fixed": "#241a00",
+            "error": "#ffb4ab",
+            "on-surface": "#d1e8dc",
+            "surface-container-highest": "#253931",
+            "tertiary-container": "#5f3c3d",
+            "inverse-surface": "#d1e8dc",
+            "error-container": "#93000a",
+            "secondary-fixed": "#ffe088",
+            "surface-container-lowest": "#01110b",
+            "on-error": "#690005",
+            "secondary-fixed-dim": "#e9c349",
+            "primary-fixed-dim": "#ffb3b6",
+            "surface-container": "#10231c",
+            "outline": "#a78a8a",
+            "surface-bright": "#293d35",
+            "surface": "#041710",
+            "tertiary-fixed": "#ffdad9",
+            "on-secondary-container": "#342800",
+            "on-primary-fixed-variant": "#8c142b",
+            "inverse-on-surface": "#21342c",
+            "secondary-container": "#af8d11",
+            "surface-tint": "#ffb3b6",
+            "primary-container": "#8a122a",
+            "on-tertiary-fixed": "#2f1314",
+            "secondary": "#e9c349",
+            "tertiary": "#ecbaba",
+            "primary": "#ffb3b6",
+            "primary-fixed": "#ffdada",
+            "on-primary-fixed": "#40000c",
+            "inverse-primary": "#ad2f41",
+            "on-tertiary-fixed-variant": "#613d3e",
+            "on-primary-container": "#ff959b",
+            "on-error-container": "#ffdad6",
+            "on-secondary": "#3c2f00",
+            "background": "#041710",
+            "surface-container-low": "#0b1f18",
+            "on-primary": "#680019",
+            "on-tertiary": "#472828",
+            "tertiary-fixed-dim": "#ecbaba",
+            "surface-container-high": "#1a2e26",
+            "on-secondary-fixed-variant": "#574500",
+            "surface-variant": "#253931",
+            "on-surface-variant": "#dfbfbf"
+          },
+          borderRadius: {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          fontFamily: {
+            "body-md": ["EB Garamond", "serif"],
+            "headline-sm": ["Playfair Display", "serif"],
+            "display-lg": ["Playfair Display", "serif"],
+            "display-lg-mobile": ["Playfair Display", "serif"],
+            "headline-lg-mobile": ["Playfair Display", "serif"],
+            "headline-md": ["Playfair Display", "serif"],
+            "body-sm": ["EB Garamond", "serif"],
+            "label-sm": ["EB Garamond", "serif"],
+            "body-lg": ["EB Garamond", "serif"],
+            "label-md": ["EB Garamond", "serif"],
+            "headline-lg": ["Playfair Display", "serif"]
+          }
+        }
+      }
+    }
+</script>
+<style>
+    @keyframes floatPetal {
+      0% {
+        transform: translateY(-8vh) translateX(0) rotate(0deg) scale(0.85);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.9;
+      }
+      85% {
+        opacity: 0.85;
+      }
+      100% {
+        transform: translateY(105vh) translateX(110px) rotate(520deg) scale(1.05);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fireflyGlow {
+      0%, 100% { transform: translate(0, 0) scale(0.85); opacity: 0.3; }
+      50% { transform: translate(25px, -30px) scale(1.4); opacity: 1; filter: drop-shadow(0 0 16px rgba(255, 224, 136, 0.95)); }
+    }
+
+    /* Overall Bouquet Gentle Sway */
+    @keyframes gentleBreeze {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(1.2deg) translateY(-3px); }
+    }
+    @keyframes ribbonSway {
+      0%, 100% { transform: rotate(0deg) skewX(0deg); }
+      50% { transform: rotate(2deg) skewX(1deg); }
+    }
+
+    /* INITIAL HIDDEN STATE: Bouquet elements remain 100% invisible until bloom trigger */
+    #bouquet-wrapper {
+      opacity: 0;
+      transform-origin: 50% 92%;
+      transition: opacity 0.5s ease;
+    }
+
+    /* When blooming is initiated or completed, wrapper is visible and sways */
+    .bouquet-visible #bouquet-wrapper {
+      opacity: 1;
+      animation: gentleBreeze 7s ease-in-out infinite;
+    }
+
+    /* 1. Stems Growth Animation: Grows upward from base */
+    .bouquet-stems-layer {
+      opacity: 0;
+      transform-origin: 50% 95%;
+      transform: scaleY(0.05);
+    }
+    .blooming-active .bouquet-stems-layer,
+    .bloomed-settled .bouquet-stems-layer {
+      opacity: 1;
+      transform: scaleY(1);
+      transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.4s ease;
+    }
+
+    /* 2. Leaves Emerge Animation */
+    .bouquet-leaves-layer {
+      opacity: 0;
+      transform-origin: 50% 65%;
+      transform: scale(0.2);
+    }
+    .blooming-active .bouquet-leaves-layer,
+    .bloomed-settled .bouquet-leaves-layer {
+      opacity: 1;
+      transform: scale(1);
+      transition: transform 1s cubic-bezier(0.16, 1.1, 0.3, 1) 0.6s, opacity 0.5s ease 0.6s;
+    }
+
+    /* 3. Gold Bow Cinching at Junction */
+    .bouquet-ribbon-node {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.2);
+      transform-origin: 50% 50%;
+    }
+    .blooming-active .bouquet-ribbon-node,
+    .bloomed-settled .bouquet-ribbon-node {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      transition: transform 0.9s cubic-bezier(0.18, 1.25, 0.35, 1) 0.75s, opacity 0.4s ease 0.75s;
+      animation: ribbonSway 6s ease-in-out infinite 1.8s;
+    }
+
+    /* 4. Rose Blooms: Initially scaled to 0 and hidden */
+    .rose-bloom {
+      position: absolute;
+      transform: translate(-50%, -50%) scale(0) rotate(var(--rose-rot, 0deg));
+      opacity: 0;
+      visibility: hidden;
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.92)) drop-shadow(0 4px 10px rgba(120, 10, 30, 0.45));
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+      border-radius: 9999px;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Active Bloom Animation triggers upward scaling sequence */
+    @keyframes roseUnfurlScale {
+      0% {
+        transform: translate(-50%, -50%) scale(0) rotate(var(--rose-rot, 0deg));
+        opacity: 0;
+        visibility: visible;
+      }
+      20% {
+        opacity: 1;
+        visibility: visible;
+      }
+      75% {
+        transform: translate(-50%, -50%) scale(1.08) rotate(var(--rose-rot, 0deg));
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1) rotate(var(--rose-rot, 0deg));
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+
+    .blooming-active .rose-bloom {
+      animation: roseUnfurlScale 1.2s cubic-bezier(0.16, 1.15, 0.3, 1) forwards;
+      animation-delay: var(--bloom-delay, 0.9s);
+    }
+
+    /* Settled state: roses stay permanently visible */
+    .bloomed-settled .rose-bloom {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1) rotate(var(--rose-rot, 0deg));
+    }
+
+    .rose-bloom:hover {
+      transform: translate(-50%, -50%) scale(1.12) rotate(var(--rose-rot, 0deg)) !important;
+      filter: drop-shadow(0 16px 32px rgba(233, 195, 73, 0.55)) drop-shadow(0 0 25px rgba(220, 20, 60, 0.75)) !important;
+      z-index: 60 !important;
+    }
+
+    .floating-leaf {
+      position: absolute;
+      pointer-events: none;
+      z-index: 35;
+      animation: floatPetal 12s linear infinite;
+    }
+
+    .firefly {
+      animation: fireflyGlow 5s ease-in-out infinite;
+    }
+
+    #cursor-aura {
+      pointer-events: none;
+      transition: transform 0.12s ease-out;
+      background: radial-gradient(circle, rgba(233, 195, 73, 0.16) 0%, rgba(138, 18, 42, 0.08) 50%, transparent 75%);
+    }
+
+    .gold-glow-text {
+      text-shadow: 0 0 25px rgba(255, 224, 136, 0.55), 0 0 50px rgba(255, 179, 182, 0.4);
+    }
+</style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen w-screen overflow-x-hidden selection:bg-primary-container selection:text-primary relative flex flex-col justify-between">
+<!-- Interactive Cursor Aura -->
+<div class="fixed w-96 h-96 -translate-x-1/2 -translate-y-1/2 rounded-full z-10 hidden md:block" id="cursor-aura"></div>
+<!-- Ambient Gentle Floating Rose Petals -->
+<div class="fixed inset-0 pointer-events-none z-30 overflow-hidden" id="petal-container">
+<div class="floating-leaf w-4 h-6 bg-gradient-to-br from-[#db2044] via-[#800a20] to-[#1e0207] rounded-full blur-[0.2px] rotate-45" style="left: 9%; animation-duration: 11s; animation-delay: 0s;"></div>
+<div class="floating-leaf w-3.5 h-5 bg-gradient-to-tr from-secondary-fixed via-[#b11333] to-[#38040d] rounded-full blur-[0.2px] rotate-12" style="left: 24%; animation-duration: 13s; animation-delay: 2.2s;"></div>
+<div class="floating-leaf w-4.5 h-6.5 bg-gradient-to-br from-[#db2044] via-[#800a20] to-[#1e0207] rounded-full blur-[0.3px]" style="left: 58%; animation-duration: 12s; animation-delay: 4.5s;"></div>
+<div class="floating-leaf w-3.5 h-5 bg-gradient-to-b from-[#f9899f] via-[#b11333] to-[#38040d] rounded-full blur-[0.2px]" style="left: 79%; animation-duration: 14s; animation-delay: 1.5s;"></div>
+<div class="floating-leaf w-4 h-6 bg-gradient-to-tl from-[#b11333] to-[#1e0207] rounded-full blur-[0.2px]" style="left: 91%; animation-duration: 10s; animation-delay: 5.8s;"></div>
+</div>
+<!-- TOP NAVIGATION BAR -->
+<header class="w-full bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 z-40 shrink-0">
+<div class="flex justify-between items-center w-full px-6 md:px-12 py-3.5 max-w-[1360px] mx-auto">
+<!-- Brand Logo -->
+<a class="font-headline-md text-xl md:text-2xl tracking-wider text-secondary-fixed-dim font-normal italic flex items-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-secondary text-2xl group-hover:rotate-45 transition-transform duration-500" data-icon="local_florist">local_florist</span>
+      L’Éternel Jardin
+    </a>
+<!-- Center Poetic Monogram Badge -->
+<div class="hidden sm:flex items-center space-x-2 px-4 py-1 rounded-full bg-surface-container-high/60 border border-secondary/30 backdrop-blur-md">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed shadow-[0_0_8px_#ffe088]"></span>
+<span class="font-label-sm text-xs text-secondary-fixed tracking-[0.22em] uppercase">Sanctuary of Devotion</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed shadow-[0_0_8px_#ffe088]"></span>
+</div>
+<!-- Actions: Soundscape & Replay Bloom -->
+<div class="flex items-center space-x-4">
+<!-- Audio Toggle -->
+<button class="flex items-center space-x-2 text-on-surface-variant hover:text-secondary transition-colors duration-300 p-2 rounded-full hover:bg-surface-container-high/50 cursor-pointer" id="audio-toggle" title="Toggle Soundscape">
+<span class="material-symbols-outlined text-xl" data-icon="volume_up">volume_up</span>
+<span class="hidden md:inline font-label-sm text-xs text-secondary tracking-widest">Night Winds &amp; Harp</span>
+</button>
+<!-- Replay Bloom Action Button in Header -->
+<button class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 border border-secondary/50 hover:border-secondary text-secondary-fixed font-label-sm text-xs tracking-widest rounded transition-all duration-300 hover:bg-secondary/15 hover:shadow-[0_0_15px_rgba(233,195,73,0.3)] hover:scale-105 active:scale-95 cursor-pointer" id="replay-bloom-btn" title="Replay Damascus rose bouquet blooming">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="replay">replay</span>
+<span>Replay Bloom</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN VIEWPORT STAGE -->
+<main class="relative flex-grow flex flex-col items-center justify-between w-full px-4 select-none min-h-[860px] pb-6" id="garden-stage">
+<!-- Atmospheric Bioluminescent Glow -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(138,18,42,0.38)_0%,rgba(14,42,32,0.8)_48%,rgba(4,23,16,0.98)_95%)] pointer-events-none"></div>
+<!-- Soft Mist Floor -->
+<div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-surface-dim via-surface-container-low/50 to-transparent pointer-events-none z-10"></div>
+<!-- Ambient Bioluminescent Fireflies -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute w-2 h-2 rounded-full bg-secondary-fixed shadow-[0_0_14px_#ffe088] firefly top-1/4 left-1/6" style="animation-delay: 0.2s;"></div>
+<div class="absolute w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_18px_#ffb3b6] firefly top-1/2 right-1/4" style="animation-delay: 1.4s;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-secondary shadow-[0_0_12px_#e9c349] firefly top-2/3 left-1/4" style="animation-delay: 2.7s;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-tertiary shadow-[0_0_14px_#ecbaba] firefly top-1/3 right-1/6" style="animation-delay: 3.5s;"></div>
+<div class="absolute w-2.5 h-2.5 rounded-full bg-secondary-fixed shadow-[0_0_14px_#ffe088] firefly bottom-1/3 right-1/3" style="animation-delay: 4.1s;"></div>
+<div class="absolute w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_10px_#ffe088] firefly top-1/5 right-2/5" style="animation-delay: 1.9s;"></div>
+<div class="absolute w-2 h-2 rounded-full bg-primary-fixed shadow-[0_0_12px_#ffb3b6] firefly bottom-1/4 left-1/3" style="animation-delay: 3.1s;"></div>
+</div>
+<!-- TOP HEADER GREETING & BLOOM BUTTON -->
+<div class="relative z-30 flex flex-col items-center text-center max-w-3xl mx-auto w-full pt-3 transition-all duration-500">
+<div class="space-y-1.5" id="greeting-block">
+<div class="inline-flex items-center space-x-2 px-4 py-0.5 rounded-full bg-surface-container-high/70 border border-secondary/35 backdrop-blur-md shadow-[0_0_15px_rgba(233,195,73,0.15)]">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-label-sm text-xs text-secondary-fixed tracking-[0.24em] uppercase">Grand Royal Jouri Rose Dome</span>
+</div>
+<h1 class="font-display-lg text-4xl sm:text-5xl md:text-6xl tracking-tight text-on-surface font-normal">
+        Hello, <span class="italic text-primary gold-glow-text font-serif">Sedra Nammora</span>
+</h1>
+<p class="font-body-lg text-base md:text-xl text-on-surface-variant italic max-w-xl mx-auto">
+        “In the quiet midnight of this world, some wonders awaken only to mirror the grace you carry.”
+      </p>
+</div>
+<!-- TOUCH TO BLOOM BUTTON -->
+<div class="mt-2.5 flex flex-col items-center transition-all duration-300 z-30" id="bloom-trigger-container">
+<button class="group relative px-8 py-2.5 rounded-full bg-gradient-to-r from-primary-container via-[#a81635] to-primary-container text-primary-fixed border border-secondary/60 shadow-[0_0_35px_rgba(138,18,42,0.65),0_0_15px_rgba(233,195,73,0.35)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 cursor-pointer" id="unveil-bloom-btn">
+<span class="material-symbols-outlined text-secondary text-xl group-hover:rotate-90 transition-transform duration-500" data-icon="yard">yard</span>
+<span class="font-headline-sm text-base md:text-lg tracking-wider text-secondary-fixed">Touch to Bloom</span>
+<span class="material-symbols-outlined text-primary text-lg group-hover:scale-125 transition-transform" data-icon="auto_awesome">auto_awesome</span>
+<span class="absolute -inset-1 rounded-full border border-secondary/40 animate-ping opacity-50 pointer-events-none"></span>
+</button>
+<p class="font-label-sm text-xs text-secondary-fixed/80 tracking-widest mt-1.5 flex items-center gap-1.5 opacity-85">
+<span class="material-symbols-outlined text-sm" data-icon="touch_app">touch_app</span>
+        Click to unveil your bespoke Damascus rose bouquet
+      </p>
+</div>
+<!-- Blooming status indicator -->
+<div class="opacity-0 pointer-events-none transition-all duration-500 mt-1.5 flex items-center gap-2 px-4 py-1 rounded-full bg-surface-container-high/60 border border-secondary/25 backdrop-blur-sm" id="blooming-subtitle">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-sm text-xs text-secondary-fixed tracking-[0.2em] italic">24 Damascus roses gathered in eternal devotion</span>
+</div>
+</div>
+<!-- MASTER SVG DEFINITIONS: FOLIAGE & RIBBON -->
+<svg class="hidden" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+<defs>
+<!-- Foliage Emerald Gradient with golden-green veins -->
+<lineargradient id="emeraldLeafGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#1e6338"></stop>
+<stop offset="45%" stop-color="#124527"></stop>
+<stop offset="85%" stop-color="#0a331e"></stop>
+<stop offset="100%" stop-color="#041a10"></stop>
+</lineargradient>
+<!-- Luxury Golden Ribbon Gradient -->
+<lineargradient id="luxuryGoldRibbon" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#fff5cc"></stop>
+<stop offset="25%" stop-color="#e9c349"></stop>
+<stop offset="55%" stop-color="#ba9518"></stop>
+<stop offset="85%" stop-color="#f5d871"></stop>
+<stop offset="100%" stop-color="#735a06"></stop>
+</lineargradient>
+<!-- Jagged Emerald Rose Foliage Definition -->
+<g id="master-rose-leaf">
+<path d="M0 0 C-18 -20, -42 -26, -58 -18 C-52 -12, -44 -8, -50 -1 C-42 4, -36 10, -41 18 C-31 19, -24 26, -28 35 C-18 26, -8 16, 0 0 Z" fill="url(#emeraldLeafGrad)" stroke="#061c11" stroke-width="1.2"></path>
+<path d="M0 0 C-20 -9, -40 -11, -52 -17" fill="none" opacity="0.75" stroke="#48ab79" stroke-linecap="round" stroke-width="1.5"></path>
+<path d="M-15 -4 C-20 6, -26 12, -34 16" fill="none" opacity="0.6" stroke="#48ab79" stroke-linecap="round" stroke-width="1.1"></path>
+<path d="M-28 -8 C-32 0, -36 5, -42 8" fill="none" opacity="0.5" stroke="#ffe088" stroke-linecap="round" stroke-width="0.8"></path>
+</g>
+</defs>
+</svg>
+<!-- COHESIVE BOUQUET CONTAINER IN CENTER LOWER VIEWPORT (720px x 500px) -->
+<div class="relative w-full max-w-[720px] h-[500px] mx-auto z-20 flex items-center justify-center -mt-2 sm:mt-0" id="bouquet-container">
+<!-- Atmospheric Backdrop Radiance directly behind bouquet dome -->
+<div class="absolute w-[640px] h-[460px] rounded-full top-0 left-1/2 -translate-x-1/2 bg-[radial-gradient(ellipse_at_50%_45%,rgba(219,32,68,0.35)_0%,rgba(14,42,32,0.55)_50%,transparent_75%)] pointer-events-none z-0"></div>
+<!-- BOUQUET WRAPPER: Completely hidden on initial load; blooms smoothly when triggered -->
+<div class="relative w-full h-full" id="bouquet-wrapper">
+<!-- 1. STEMS SVG LAYER (Deep forest green stems gather tightly at (360, 365) and fan upward cleanly under rose bases) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-10 bouquet-stems-layer" fill="none" viewbox="0 0 720 500">
+<defs>
+<lineargradient id="stemGrad" x1="0%" x2="0%" y1="100%" y2="0%">
+<stop offset="0%" stop-color="#020e08"></stop>
+<stop offset="40%" stop-color="#0b2b1e"></stop>
+<stop offset="80%" stop-color="#155436"></stop>
+<stop offset="100%" stop-color="#1f6944"></stop>
+</lineargradient>
+</defs>
+<g id="stems-group" stroke="url(#stemGrad)">
+<!-- Base stem stalks protruding cleanly beneath knot (360, 365) -->
+<path d="M 360 365 L 340 455" stroke-linecap="round" stroke-width="6.5"></path>
+<path d="M 360 365 L 352 468" stroke-linecap="round" stroke-width="6"></path>
+<path d="M 360 365 L 360 472" stroke-linecap="round" stroke-width="6.5"></path>
+<path d="M 360 365 L 368 468" stroke-linecap="round" stroke-width="6"></path>
+<path d="M 360 365 L 380 455" stroke-linecap="round" stroke-width="6.5"></path>
+<!-- Main stems fanning upward from pinch point (360, 365) to support all rose tiers -->
+<path d="M 360 365 C 360 325, 355 295, 345 270" stroke-width="7"></path>
+<path d="M 360 365 C 348 325, 330 285, 290 260" stroke-width="6.5"></path>
+<path d="M 360 365 C 372 325, 390 285, 430 260" stroke-width="6.5"></path>
+<path d="M 360 365 C 330 330, 270 295, 240 270" stroke-width="6"></path>
+<path d="M 360 365 C 390 330, 450 295, 480 270" stroke-width="6"></path>
+<path d="M 360 365 C 310 335, 220 310, 165 270" stroke-width="5.5"></path>
+<path d="M 360 365 C 410 335, 500 310, 555 270" stroke-width="5.5"></path>
+<path d="M 360 365 C 340 310, 310 255, 280 220" stroke-width="5.8"></path>
+<path d="M 360 365 C 380 310, 410 255, 440 220" stroke-width="5.8"></path>
+<path d="M 360 365 C 360 295, 355 230, 345 185" stroke-width="6.8"></path>
+<path d="M 360 365 C 360 295, 365 230, 375 185" stroke-width="6.8"></path>
+</g>
+</svg>
+<!-- 2. DENSE BOTANICAL DARK EMERALD LEAVES (Concealing stem gaps & framing blooms) -->
+<div class="absolute inset-0 pointer-events-none z-15 bouquet-leaves-layer">
+<svg class="w-full h-full" fill="none" viewbox="0 0 720 500">
+<!-- Left Flank Botanical Leaves -->
+<g transform="translate(130, 250) rotate(-45) scale(1.15)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(160, 310) rotate(-30) scale(1.1)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(185, 185) rotate(-60) scale(1.2)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(110, 290) rotate(-15) scale(1.05)"><use href="#master-rose-leaf"></use></g>
+<!-- Right Flank Botanical Leaves -->
+<g transform="translate(590, 250) scale(-1, 1) rotate(-45) scale(1.15)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(560, 310) scale(-1, 1) rotate(-30) scale(1.1)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(535, 185) scale(-1, 1) rotate(-60) scale(1.2)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(610, 290) scale(-1, 1) rotate(-15) scale(1.05)"><use href="#master-rose-leaf"></use></g>
+<!-- Top Crown Perimeter Foliage -->
+<g transform="translate(300, 115) rotate(-22) scale(1.05)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(420, 115) scale(-1, 1) rotate(-22) scale(1.05)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(240, 145) rotate(-40) scale(1.1)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(480, 145) scale(-1, 1) rotate(-40) scale(1.1)"><use href="#master-rose-leaf"></use></g>
+<!-- Internal Gap-Filling Dense Leaves -->
+<g transform="translate(270, 250) rotate(-15) scale(0.95)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(450, 250) scale(-1, 1) rotate(-15) scale(0.95)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(360, 320) rotate(85) scale(0.9)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(290, 190) rotate(-48) scale(0.9)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(430, 190) scale(-1, 1) rotate(-48) scale(0.9)"><use href="#master-rose-leaf"></use></g>
+<g transform="translate(360, 230) rotate(35) scale(0.85)"><use href="#master-rose-leaf"></use></g>
+</svg>
+</div>
+<!-- 3. ALL 24 BESPOKE PHOTOREALISTIC JOURI ROSES USING https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf -->
+<!-- Grand Focal Center (3 roses) -->
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 48%; top: 40%; width: 135px; height: 135px; z-index: 34; --rose-rot: 0deg; filter: brightness(1.04) contrast(1.05) drop-shadow(0 14px 26px rgba(0,0,0,0.95)); --bloom-delay: 1.35s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 40%; top: 44%; width: 125px; height: 125px; z-index: 32; --rose-rot: -14deg; filter: brightness(0.98) contrast(1.03) drop-shadow(0 12px 24px rgba(0,0,0,0.92)); --bloom-delay: 1.3s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 56%; top: 44%; width: 125px; height: 125px; z-index: 32; --rose-rot: 18deg; filter: brightness(1.02) contrast(1.02) drop-shadow(0 12px 24px rgba(0,0,0,0.92)); --bloom-delay: 1.32s;"/>
+<!-- Top Apex Tier (4 roses) -->
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 48%; top: 22%; width: 115px; height: 115px; z-index: 28; --rose-rot: 6deg; filter: brightness(1.05) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.1s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 39%; top: 26%; width: 110px; height: 110px; z-index: 27; --rose-rot: -12deg; filter: brightness(1.0) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.06s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 57%; top: 26%; width: 110px; height: 110px; z-index: 27; --rose-rot: 24deg; filter: brightness(1.02) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.08s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 31%; top: 32%; width: 105px; height: 105px; z-index: 26; --rose-rot: -22deg; filter: brightness(0.96) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.02s;"/>
+<!-- Upper Tier (5 roses) -->
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 65%; top: 32%; width: 105px; height: 105px; z-index: 26; --rose-rot: 30deg; filter: brightness(0.97) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.04s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 24%; top: 40%; width: 105px; height: 105px; z-index: 25; --rose-rot: -28deg; filter: brightness(0.94) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.98s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 72%; top: 40%; width: 105px; height: 105px; z-index: 25; --rose-rot: 32deg; filter: brightness(0.94) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.0s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 33%; top: 42%; width: 115px; height: 115px; z-index: 29; --rose-rot: -8deg; filter: brightness(0.99) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.15s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 63%; top: 42%; width: 115px; height: 115px; z-index: 29; --rose-rot: 14deg; filter: brightness(0.99) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 1.18s;"/>
+<!-- Mid Tier (6 roses) -->
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 18%; top: 48%; width: 100px; height: 100px; z-index: 23; --rose-rot: -32deg; filter: brightness(0.92) contrast(1.05) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.92s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 78%; top: 48%; width: 100px; height: 100px; z-index: 23; --rose-rot: 34deg; filter: brightness(0.92) contrast(1.05) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.94s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 27%; top: 52%; width: 110px; height: 110px; z-index: 26; --rose-rot: -16deg; filter: brightness(0.96) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.96s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 69%; top: 52%; width: 110px; height: 110px; z-index: 26; --rose-rot: 20deg; filter: brightness(0.96) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.97s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 39%; top: 56%; width: 120px; height: 120px; z-index: 30; --rose-rot: -5deg; filter: brightness(1.0) drop-shadow(0 12px 22px rgba(0,0,0,0.9)); --bloom-delay: 1.22s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 57%; top: 56%; width: 120px; height: 120px; z-index: 30; --rose-rot: 8deg; filter: brightness(1.0) drop-shadow(0 12px 22px rgba(0,0,0,0.9)); --bloom-delay: 1.24s;"/>
+<!-- Lower Rim / Base Tier (6 roses) -->
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 48%; top: 58%; width: 120px; height: 120px; z-index: 31; --rose-rot: 12deg; filter: brightness(1.02) contrast(1.04) drop-shadow(0 12px 22px rgba(0,0,0,0.9)); --bloom-delay: 1.26s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 33%; top: 62%; width: 105px; height: 105px; z-index: 25; --rose-rot: -18deg; filter: brightness(0.95) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.88s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 63%; top: 62%; width: 105px; height: 105px; z-index: 25; --rose-rot: 16deg; filter: brightness(0.95) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.9s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 23%; top: 58%; width: 95px; height: 95px; z-index: 22; --rose-rot: -26deg; filter: brightness(0.91) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.82s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 73%; top: 58%; width: 95px; height: 95px; z-index: 22; --rose-rot: 28deg; filter: brightness(0.91) drop-shadow(0 10px 20px rgba(0,0,0,0.9)); --bloom-delay: 0.84s;"/>
+<img alt="Red Jouri Rose" class="rose-bloom cursor-pointer" src="https://lh3.googleusercontent.com/aida/AEtjO1X595Lr9_FWomaRdcxxbiUiuxYcwaIioo1FTi7YvR1rhxdhpc9reeP5baxRXbAkHZTQzdTpt5yEgRlEg8UzYjI3eYhtlYNvz3uYCXcaZzkj_JHF7nT2Rzn7VnSldZXyDnJ-bf19vF6axKX4RmZHPlGZfhX2hTcRBeg2sOjkPOqj0Kr5aq8CJ-9BGGBzfwkuZC52Jfsg6X4j-1INv0xXgsdKsTAJtYbIiLlBwUnT1iCU1n6QComKkLCdnZOf" style="left: 48%; top: 68%; width: 110px; height: 110px; z-index: 28; --rose-rot: -2deg; filter: brightness(0.98) drop-shadow(0 12px 22px rgba(0,0,0,0.92)); --bloom-delay: 0.86s;"/>
+<!-- 4. REPOSITIONED GOLDEN SILK BOW & TRAILING RIBBONS DIRECTLY AT GATHERING PINCH POINT (50%, 74%) -->
+<!-- Sits directly at the stem bundle pinch point right under the lowest rose petals with z-35 -->
+<div class="absolute left-1/2 top-[74%] -translate-x-1/2 -translate-y-1/2 w-48 h-36 pointer-events-none z-35 bouquet-ribbon-node">
+<svg class="w-full h-full overflow-visible" fill="none" viewbox="0 0 200 150">
+<!-- Silk gold stems binding bands cinching stems together -->
+<path d="M 78 20 C 92 13, 108 13, 122 20 C 118 34, 82 34, 78 20 Z" fill="url(#luxuryGoldRibbon)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.7))" stroke="#7a5f08" stroke-width="0.8"></path>
+<!-- Left Satin Bow Loop -->
+<path d="M 98 25 C 65 2, 28 22, 38 46 C 48 66, 85 46, 98 30 Z" fill="url(#luxuryGoldRibbon)" filter="drop-shadow(0 5px 8px rgba(0,0,0,0.65))" stroke="#8c6d0c" stroke-width="0.8"></path>
+<path d="M 92 27 C 70 14, 46 25, 48 42" fill="none" opacity="0.95" stroke="#fff9d6" stroke-linecap="round" stroke-width="1.8"></path>
+<!-- Right Satin Bow Loop -->
+<path d="M 102 25 C 135 2, 172 22, 162 46 C 152 66, 115 46, 102 30 Z" fill="url(#luxuryGoldRibbon)" filter="drop-shadow(0 5px 8px rgba(0,0,0,0.65))" stroke="#8c6d0c" stroke-width="0.8"></path>
+<path d="M 108 27 C 130 14, 154 25, 152 42" fill="none" opacity="0.95" stroke="#fff9d6" stroke-linecap="round" stroke-width="1.8"></path>
+<!-- Central Knot Rosette -->
+<circle cx="100" cy="27" fill="#ffe088" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.6))" r="9" stroke="#9e7e12" stroke-width="1.2"></circle>
+<circle cx="100" cy="27" fill="#ffffff" opacity="0.75" r="3.8"></circle>
+<!-- Flowing Dangling Ribbons -->
+<path d="M 96 32 C 80 65, 48 105, 32 142 C 50 118, 74 85, 100 39 Z" fill="url(#luxuryGoldRibbon)" filter="drop-shadow(0 5px 8px rgba(0,0,0,0.5))" opacity="0.98" stroke="#8c6d0c" stroke-width="0.6"></path>
+<path d="M 104 32 C 120 65, 152 105, 168 142 C 150 118, 126 85, 100 39 Z" fill="url(#luxuryGoldRibbon)" filter="drop-shadow(0 5px 8px rgba(0,0,0,0.5))" opacity="0.98" stroke="#8c6d0c" stroke-width="0.6"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- SILHOUETTE BED BASE -->
+<div class="absolute bottom-0 inset-x-0 h-14 pointer-events-none z-10 flex items-end">
+<svg class="w-full h-12 text-surface-container-lowest opacity-95" fill="currentColor" preserveaspectratio="none" viewbox="0 0 1200 120">
+<path d="M0,120 C150,90 220,110 380,85 C520,60 620,95 780,75 C940,55 1060,90 1200,80 L1200,120 L0,120 Z"></path>
+</svg>
+</div>
+</main>
+<!-- COMPACT FOOTER -->
+<footer class="w-full bg-surface-container-lowest/90 backdrop-blur-md border-t border-outline-variant/20 z-40 shrink-0">
+<div class="flex flex-col sm:flex-row justify-between items-center w-full px-6 md:px-12 py-3 max-w-[1360px] mx-auto text-xs gap-2">
+<div class="flex items-center space-x-2 text-on-surface-variant/80 font-body-sm">
+<span class="font-headline-sm text-secondary text-sm">L’Éternel Jardin</span>
+<span>•</span>
+<span>Handcrafted with devotion for Sedra Nammora.</span>
+</div>
+<div class="text-on-surface-variant/60 font-label-sm tracking-wider">
+      MMXXIV • ETERNAL BOTANICAL PRESERVE
+    </div>
+</div>
+</footer>
+<!-- Interactive Scripts -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const gardenStage = document.getElementById('garden-stage');
+    const unveilBloomBtn = document.getElementById('unveil-bloom-btn');
+    const bloomTriggerContainer = document.getElementById('bloom-trigger-container');
+    const bloomingSubtitle = document.getElementById('blooming-subtitle');
+    const replayBloomBtn = document.getElementById('replay-bloom-btn');
+    const audioToggle = document.getElementById('audio-toggle');
+    const cursorAura = document.getElementById('cursor-aura');
+    const petalContainer = document.getElementById('petal-container');
+    const bouquetContainer = document.getElementById('bouquet-container');
+
+    let isAudioPlaying = false;
+    let bloomSettleTimer = null;
+
+    // Trigger smooth growth sequence:
+    // Stems grow upward first -> Leaves emerge -> 24 Roses bloom outward -> Gold bow cinches
+    // After blooming, the bouquet stays permanently visible with gentle breeze sway
+    function triggerBloom() {
+      if (bloomSettleTimer) clearTimeout(bloomSettleTimer);
+
+      // Clean state reset before triggering animation
+      gardenStage.classList.remove('blooming-active', 'bloomed-settled', 'bouquet-visible');
+      void bouquetContainer.offsetWidth; // Force DOM reflow
+
+      // Activate bouquet visibility and sequential growth
+      gardenStage.classList.add('bouquet-visible', 'blooming-active');
+
+      spawnCelebrationSparkles(28);
+      playRomanticHarpChord();
+
+      // Fade out trigger button and reveal devotion badge
+      bloomTriggerContainer.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+      setTimeout(() => {
+        bloomTriggerContainer.classList.add('hidden');
+        if (bloomingSubtitle) {
+          bloomingSubtitle.classList.remove('opacity-0', 'pointer-events-none');
+          bloomingSubtitle.classList.add('opacity-100');
+        }
+      }, 350);
+
+      // Once bloom completes, transition into permanently settled bloomed state
+      bloomSettleTimer = setTimeout(() => {
+        gardenStage.classList.remove('blooming-active');
+        gardenStage.classList.add('bloomed-settled');
+      }, 2600);
+    }
+
+    // Replay bloom: resets to hidden state and cleanly replays growth sequence
+    function resetAndReplay() {
+      if (bloomSettleTimer) clearTimeout(bloomSettleTimer);
+
+      // Hide and reset bouquet state completely
+      gardenStage.classList.remove('bloomed-settled', 'blooming-active', 'bouquet-visible');
+
+      if (bloomingSubtitle) {
+        bloomingSubtitle.classList.remove('opacity-100');
+        bloomingSubtitle.classList.add('opacity-0', 'pointer-events-none');
+      }
+
+      bloomTriggerContainer.classList.remove('hidden');
+      setTimeout(() => {
+        bloomTriggerContainer.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+      }, 40);
+
+      void bouquetContainer.offsetWidth;
+
+      // Small delay then re-trigger the bloom
+      setTimeout(() => {
+        triggerBloom();
+      }, 100);
+    }
+
+    unveilBloomBtn.addEventListener('click', triggerBloom);
+    replayBloomBtn.addEventListener('click', resetAndReplay);
+
+    // Audio Soundscape Toggle
+    audioToggle.addEventListener('click', () => {
+      isAudioPlaying = !isAudioPlaying;
+      const icon = audioToggle.querySelector('.material-symbols-outlined');
+      if (isAudioPlaying) {
+        icon.textContent = 'volume_up';
+        audioToggle.classList.add('text-secondary');
+        playRomanticHarpChord();
+      } else {
+        icon.textContent = 'volume_off';
+        audioToggle.classList.remove('text-secondary');
+      }
+    });
+
+    // Romantic Acoustic Harp Chord Chime
+    function playRomanticHarpChord() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const chord = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77, 1046.50];
+        chord.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.08);
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + i * 0.08 + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.08 + 1.8);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.08);
+          osc.stop(ctx.currentTime + i * 0.08 + 1.9);
+        });
+      } catch (err) {}
+    }
+
+    // Celebration burst of ambient floating petals
+    function spawnCelebrationSparkles(count = 25) {
+      for (let i = 0; i < count; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'floating-leaf rounded-full';
+        const size = Math.floor(Math.random() * 12) + 9;
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size + 5}px`;
+        const palettes = [
+          'linear-gradient(135deg, #db2044, #700619)',
+          'linear-gradient(135deg, #ffb8c5, #b11333)',
+          'linear-gradient(135deg, #b11333, #38040d)',
+          'linear-gradient(135deg, #f88fa4, #1e0207)'
+        ];
+        petal.style.background = palettes[i % palettes.length];
+        petal.style.left = `${Math.random() * 86 + 7}%`;
+        petal.style.top = `${Math.random() * 260 + 100}px`;
+        petal.style.animationDuration = `${Math.random() * 4 + 5}s`;
+        petal.style.opacity = '0.9';
+        petal.style.filter = 'drop-shadow(0 0 6px rgba(233,195,73,0.3))';
+        petalContainer.appendChild(petal);
+
+        setTimeout(() => petal.remove(), 6500);
+      }
+    }
+
+    // Cursor Follower
+    document.addEventListener('mousemove', (e) => {
+      if (cursorAura) {
+        cursorAura.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      }
+    });
+  });
+</script>
+</body></html>
